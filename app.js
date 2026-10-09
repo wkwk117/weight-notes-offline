@@ -190,7 +190,7 @@
     DATES.forEach(d => { const r = state.records[d], w = windowStats(d); rows.push([d, fixed(target(d)), hasWeight(r) ? fixed(r.weight) : '', hasWeight(r) ? signed(r.weight - target(d)) : '', fixed(w.actual, 2), w.n, r?.note || '']); });
     markExport(); deliver(new Blob(['\uFEFF' + rows.map(r => r.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }), `weight-records-${today()}.csv`);
   }
-  function importBackupText(text) {
+  function importBackupText(text, options = {}) {
     const status = $('import-status');
     try {
       if (text.length > 1024 * 1024) throw Error('备份超过1 MB，未导入。');
@@ -198,7 +198,9 @@
       const samePlan = !state || JSON.stringify(state.plan) === JSON.stringify(incoming.plan);
       if (!samePlan && (Object.keys(state.records).length || Object.keys(state.drafts).length)) throw Error('当前已有不同计划的记录。为避免覆盖，未导入；请先导出当前备份，使用另一浏览器入口恢复。');
       const overlaps = state && samePlan ? [...new Set([...Object.keys(incoming.records), ...Object.keys(incoming.drafts)])].filter(d => state.records[d] || state.drafts[d]).length : 0;
-      if (!confirm(`导入${Object.keys(incoming.records).length}个日期和${Object.keys(incoming.drafts).length}条草稿。${overlaps}个重复日期以备份为准，其余保留。确认导入？`)) { status.textContent = '已取消导入，原记录保留。'; return; }
+      // A private restore link may initialize an empty browser without an extra tap.
+      // Existing records always keep the normal conflict confirmation.
+      if (!(options.initializeEmpty && !state && !loadBlocked) && !confirm(`导入${Object.keys(incoming.records).length}个日期和${Object.keys(incoming.drafts).length}条草稿。${overlaps}个重复日期以备份为准，其余保留。确认导入？`)) { status.textContent = '已取消导入，原记录保留。'; return; }
       if (state && samePlan) {
         const records = { ...state.records }, drafts = { ...state.drafts };
         Object.keys(incoming.records).forEach(d => { records[d] = incoming.records[d]; delete drafts[d]; });
@@ -208,6 +210,19 @@
       const ok = persist(); configure();
       status.textContent = ok ? '已导入并保存到当前浏览器，请核对记录。' : '已读入本次页面，但本地保存失败；请立即导出备份。'; toast(status.textContent);
     } catch (e) { status.textContent = e instanceof SyntaxError ? 'JSON 损坏，没有修改记录。' : e.message; toast(status.textContent); }
+  }
+  function restoreFromLink() {
+    if (!location.hash.startsWith('#restore=')) return;
+    const encoded = location.hash.slice(9);
+    // Fragments stay in the browser; remove the payload before rendering or caching.
+    try { history.replaceState(null, '', location.pathname + location.search); }
+    catch (_) { toast('无法清除恢复链接，请改用备份文件导入。'); return; }
+    try {
+      if (encoded.length > 1400000 || !/^[A-Za-z0-9_-]+$/.test(encoded)) throw Error('恢复链接无效或过长，没有修改记录。');
+      const binary = atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
+      const text = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(binary, c => c.charCodeAt(0)));
+      importBackupText(text, { initializeEmpty: true });
+    } catch (_) { toast('恢复链接损坏，没有修改记录。请使用原备份导入。'); }
   }
   async function checkCache() {
     offlineReady = false; cacheMessage = '正在核验离线缓存…'; updateOffline();
@@ -275,6 +290,8 @@
   window.addEventListener('pagehide', retryPending); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') retryPending(); });
   window.addEventListener('storage', e => { if (e.key === KEY && e.newValue) { try { state = C.validate(JSON.parse(e.newValue)); if (document.activeElement?.matches('input,textarea')) { toast('另一个页面更新了记录，请结束当前输入后重新打开本页核对。'); return; } configure(); } catch (_) { toast('另一个页面的记录格式无效，当前数据保留。'); } } });
   configure(); storageNotice(); renderBackup(); updateDraftNotice();
+  restoreFromLink();
+  window.addEventListener('hashchange', restoreFromLink);
   $('runtime-box').className = 'runtime-box ready'; window.weightTrackerReady = true;
   checkCache();
 })();

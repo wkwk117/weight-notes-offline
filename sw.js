@@ -1,7 +1,7 @@
 'use strict';
 const VERSION = '3.0.0';
 const PREFIX = 'weight-notes-shell:';
-const CACHE = PREFIX + VERSION + ':190346cd5593c2d6';
+const CACHE = PREFIX + VERSION + ':9823882380c70bde';
 const ASSETS = ['./', './index.html', './styles.css', './core.js', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 const absolute = p => new URL(p, self.registration.scope).href;
 self.addEventListener('install', event => {
