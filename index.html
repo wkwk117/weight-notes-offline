@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#245d54" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
+<title>我的体重记录</title>
+<link rel="stylesheet" href="./styles.css"/>
+<link rel="manifest" href="./manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="./icon-192.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="体重记录"/>
+<script src="./core.js" defer></script><script src="./app.js" defer></script>
+</head>
+<body>
+
+<div class="shell">
+<header class="top"><div class="brand"><div aria-hidden="true" class="mark"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24"><path d="M4 16l5-5 4 3 7-8"></path><path d="M16 6h4v4"></path><path d="M4 20h16"></path></svg></div><div><div class="brand-name">我的体重记录</div><div class="brand-sub">A LITTLE, EVERY DAY</div></div></div><div class="pill" id="storage-pill"><i class="dot"></i><span>尚未启动</span></div></header>
+<div class="runtime-box" id="runtime-box" role="status"><strong id="runtime-title">交互尚未启动，暂时不能记录。</strong><span class="runtime-detail" id="runtime-detail">如果一直显示这条提示，当前打开方式可能没有运行脚本。请使用正式网址打开；计算和保存尚未运行。请不要把输入文字当成已保存。</span><small style="display:block;font-size:10px;opacity:.72">网页离线版 · v3.0.0</small></div><div class="draft-notice" hidden="" id="draft-notice"><span id="draft-text"></span><button data-needs-js="" disabled="" id="open-draft" type="button">返回修改草稿</button></div><div class="storage-alert" hidden="" id="storage-warning" role="alert"></div>
+<div class="offline-status" id="offline-status" role="status">离线缓存尚未完成，首次打开需要网络。</div>
+<div class="card setup-card" id="setup-card" hidden><h2>把参考线留在本机</h2><p>已有旧版 JSON？点底部「备份」导入，计划和记录会一起恢复。也可在这里设置参考线，数据只存当前浏览器。</p><form id="setup-form"><div class="setup-fields"><label>开始日期<input id="plan-start" type="date" required data-needs-js disabled></label><label>结束日期<input id="plan-end" type="date" required data-needs-js disabled></label><label>起点参考（kg）<input id="plan-start-weight" inputmode="decimal" required data-needs-js disabled></label><label>终点参考（kg）<input id="plan-end-weight" inputmode="decimal" required data-needs-js disabled></label></div><button class="primary" data-needs-js disabled type="submit">保存参考线</button><p id="setup-error" role="alert"></p></form></div><main>
+<section data-panel="home" id="panel-home">
+<div class="heading"><div class="eyebrow">DAILY CHECK-IN</div><h1>今天，记一下。</h1><p>填一个数字，留下自己的变化。</p></div>
+<div class="home-grid" id="home-grid">
+<div class="card record-card">
+<div class="datebar"><button aria-label="前一天" class="icon-btn" data-needs-js="" disabled="" id="prev-day" type="button"><svg fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="m14 6-6 6 6 6"></path></svg></button><div class="date-wrap"><select aria-label="选择记录日期" data-needs-js="" disabled="" id="entry-date"></select><div class="date-detail"><span id="day-detail">2026年 · 点上方日期选择</span><button class="to-today" data-needs-js="" disabled="" id="to-today" type="button">今天</button></div></div><button aria-label="后一天" class="icon-btn" data-needs-js="" disabled="" id="next-day" type="button"><svg fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="m10 6 6 6-6 6"></path></svg></button></div>
+<label class="weight-label" for="entry-weight">实际体重</label><div class="weight-entry"><input aria-describedby="entry-error" aria-label="实际体重，单位千克" autocomplete="off" data-needs-js="" disabled="" id="entry-weight" inputmode="decimal" maxlength="8" placeholder="—" type="text"/><span>kg</span></div>
+<div class="compare"><div><div class="small-label">当天参考</div><div class="number"><span id="day-target">—</span><small>kg</small></div></div><div><div class="small-label">实际 − 参考</div><div class="number"><span id="day-delta">—</span><small>kg</small></div></div></div>
+<label class="note-label" for="entry-note">备注<span>选填 · 最多120字</span></label><textarea data-needs-js="" disabled="" id="entry-note" maxlength="120" placeholder="例如：早起称重、出差" rows="2"></textarea>
+<div class="save-row"><button class="primary" data-needs-js="" disabled="" id="save-record" type="button">保存记录</button><div aria-live="polite" class="save-status" id="save-status" role="status">交互启动后才能保存</div></div><div aria-live="polite" class="error" id="entry-error"></div><div class="delete-row"><button class="text-btn" data-needs-js="" disabled="" id="delete-record" type="button">删除这一天的记录</button></div>
+</div>
+<div class="side-panel">
+<div class="card plan-card"><div><div class="plan-label">你设定的参考线</div><div class="plan-values" id="plan-values">—</div></div><div class="plan-dates" id="plan-dates"></div></div>
+<div class="summary-heading"><h2>看一段时间</h2><button class="link-btn" data-needs-js="" disabled="" id="open-trend" type="button">查看趋势 ↗</button></div>
+<div class="summary-grid"><div class="card"><div class="small-label">近7天平均</div><div class="number"><span id="avg-weight">—</span><small>kg</small></div><div class="sub" id="avg-count">暂无记录</div></div><div class="card"><div class="small-label">均值 − 同期参考</div><div class="number"><span id="avg-delta">—</span><small>kg</small></div><div class="sub" id="avg-ref">仅比较已记录日期</div></div></div>
+<div class="card count-card"><div><div class="small-label">已记录的日期</div><div aria-hidden="true" class="count-track"><span id="record-bar" style="width:0"></span></div></div><div class="count-value"><span id="record-count">0</span><small> / <span id="total-days">0</span> 天</small></div></div>
+<p class="gentle-note" id="window-description"></p><p class="gentle-note">差值只表示与参考线的距离，不设单日输赢；正数为高于参考，负数为低于参考。</p>
+</div></div>
+</section>
+<section data-panel="trend" id="panel-trend">
+<div class="heading"><div class="eyebrow">THE BIGGER PICTURE</div><h1>把变化连起来。</h1><p>实际记录、每日参考，与按已记天数计算的近7天均值。</p></div>
+<div aria-label="趋势日期范围" class="tabs" id="chart-tabs"><button class="active" data-chart="all" data-needs-js="" disabled="" type="button">全程</button><button data-chart="month" data-needs-js="" disabled="" type="button">所选月份</button><button data-chart="recent" data-needs-js="" disabled="" type="button">截至所选日的14天</button></div>
+<div class="card chart-card"><div class="legend"><span><i></i>实际体重</span><span><i class="ref"></i>每日参考</span><span><i class="avg"></i>近7天均值</span></div><div class="chart-wrap" id="chart"></div><p class="chart-caption" id="chart-caption">交互启动后显示趋势图。</p></div>
+<div class="card"><h2>每7天，放在一起看</h2><p class="legend-note">从计划起始日分组。只平均已填写的日期，空白不当作0。</p><div class="week-table-wrap"><table class="week-table"><thead><tr><th>日期 · 已记</th><th>实际均值</th><th>同期参考</th><th>差值</th></tr></thead><tbody id="weekly-body"></tbody></table></div><div class="rule-note">单位 kg。同一期的“同期参考”只取有实际记录的那些日期；均值和差值保留2位小数。</div></div>
+</section>
+<section data-panel="records" id="panel-records">
+<div class="heading"><div class="eyebrow">ALL YOUR DAYS</div><h1>每一天，都在这里。</h1><p>实际栏可直接编辑；点日期可查看或修改备注。</p></div>
+<div class="filter-line"><div class="tabs" id="month-tabs"></div><label><input data-needs-js="" disabled="" id="recorded-only" type="checkbox"/>只看已记</label></div>
+<div class="card table-card"><div class="records-scroll" id="records-scroll"><table class="records-table"><thead><tr><th>日期</th><th>参考</th><th>实际</th><th>差值</th></tr></thead><tbody id="records-body"></tbody></table></div></div>
+<p class="gentle-note">单位 kg。实际 − 当天参考 = 差值。浅绿色输入框可编辑，输入后立即保存。</p><p class="gentle-note" id="table-count">交互启动后显示日期。</p>
+</section>
+<section data-panel="backup" id="panel-backup"><div class="heading"><h1>给记录留一份备份。</h1><p>JSON 包含参考线、记录、备注和草稿。不会自动上传。</p></div>
+<div class="card"><h2>备份与恢复</h2><p id="backup-time" class="rule-note"></p><div class="backup-actions"><button class="primary" id="export-json" data-needs-js disabled>导出 JSON 备份</button><button class="secondary" id="export-csv" data-needs-js disabled>导出 CSV</button><button class="secondary" id="import-json" data-needs-js disabled>导入 JSON</button></div><input type="file" id="import-file" accept=".json,application/json" hidden><p class="rule-note" id="import-status" role="status"></p><p class="rule-note">在 iPhone 系统分享中选择「存储到文件」。发起分享不代表文件已保存。CSV 仅供查看，恢复请使用 JSON。</p></div>
+<div class="card"><h2>添加到 iPhone 主屏幕</h2><p class="rule-note">微信中打开网址可记录。需要离线入口时，在 Safari 打开同一网址，点击分享，选择「添加到主屏幕」。首次联网打开并等到上方显示「离线已就绪」，再断网使用。</p><p class="rule-note">微信、Safari、主屏幕入口不保证共用记录，请用 JSON 导出和导入迁移。隐私模式、清除网站数据、删除应用或系统回收可能丢失本地数据；请定期备份。</p></div>
+<div class="card"><h2>不能下载时，用文字备份</h2><p class="rule-note">显示后全选复制，保存到自己的备忘录。文字也包含尚未修正的草稿。</p><button class="secondary" data-needs-js disabled id="show-backup-text">显示备份文字</button><textarea aria-label="完整备份文字" class="manual-backup" hidden id="backup-text" readonly></textarea><details><summary>粘贴备份文字恢复</summary><textarea aria-label="要恢复的 JSON 备份" class="manual-backup" data-needs-js disabled id="import-text" placeholder="粘贴完整 JSON"></textarea><button class="secondary" data-needs-js disabled id="import-text-button">导入粘贴的备份</button></details></div>
+<div class="card"><details><summary>运行状态与计算规则</summary><pre id="diagnostics"></pre><button class="secondary" id="retry-cache" data-needs-js disabled>重新检查离线缓存</button><p class="rule-note">日期使用 UTC+8。近7天为所选日和前6个日历日，只平均有体重的日期；同期参考取相同日期。每周从计划起始日分组。全角数字、全角小数点和逗号转换为半角数字及小数点；最多1位小数。临时输入保存为草稿，不覆盖同日有效记录。</p></details></div></section>
+</main><footer class="footer">你的记录 · 离线运行 · 参考线不是预测 · v3.0.0</footer></div>
+<nav aria-label="主要功能" class="nav"><div class="nav-inner"><button type="button" class="nav-link" data-tab="home" data-needs-js disabled><svg viewbox="0 0 24 24"><rect height="17" rx="3" width="16" x="4" y="4"></rect><path d="M8 2v4m8-4v4M4 10h16m-11 5 2 2 4-4"></path></svg>记录</button><button type="button" class="nav-link" data-tab="trend" data-needs-js disabled><svg viewbox="0 0 24 24"><path d="M4 3v17h17M7 14l4-4 4 2 5-7"></path></svg>趋势</button><button type="button" class="nav-link" data-tab="records" data-needs-js disabled><svg viewbox="0 0 24 24"><rect height="16" rx="3" width="18" x="3" y="4"></rect><path d="M3 10h18M10 4v16M3 15h18"></path></svg>全部日期</button><button type="button" class="nav-link" data-tab="backup" data-needs-js disabled><svg viewbox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>备份</button></div></nav>
+<div aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
+</body></html>
